@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import createGlobe, { type Globe } from "cobe";
+import type { Globe } from "cobe";
 
 const reviews = [
   {
@@ -34,47 +34,100 @@ function GlobeBackdrop() {
     let globe: Globe | undefined;
     let frame = 0;
     let phi = 0;
-    let width = Math.max(1, host.clientWidth);
+    let width = 0;
+    let lastFrame = 0;
+    let visible = false;
+    let pageVisible = !document.hidden;
+    let disposed = false;
+    let loading = false;
     let reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const lowPowerDevice = (navigator.hardwareConcurrency || 4) <= 4;
 
-    const render = () => {
-      if (!globe) return;
-      if (!reducedMotion) phi += 0.0032;
-      globe.update({ phi, width: width * 2, height: width * 2 });
+    const stop = () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      frame = 0;
+    };
+
+    const render = (time: number) => {
+      frame = 0;
+      if (!globe || !visible || !pageVisible || reducedMotion || lowPowerDevice) return;
+      if (time - lastFrame < 1000 / 30) {
+        frame = window.requestAnimationFrame(render);
+        return;
+      }
+      lastFrame = time;
+      phi += 0.0024;
+      globe.update({ phi });
       frame = window.requestAnimationFrame(render);
     };
 
-    const create = () => {
-      width = Math.max(1, host.clientWidth);
-      globe?.destroy();
-      globe = createGlobe(canvas, {
-        devicePixelRatio: 2,
-        width: width * 2,
-        height: width * 2,
-        phi,
-        theta: 0.28,
-        mapSamples: 16000,
-        mapBrightness: 4.6,
-        diffuse: 0.55,
-        dark: 1,
-        baseColor: [0.32, 0.34, 0.38],
-        glowColor: [0.09, 0.11, 0.15],
-        markerColor: [0, 0.6, 1],
-        opacity: 0.9,
-      });
+    const start = () => {
+      if (frame || !globe || !visible || !pageVisible || reducedMotion || lowPowerDevice) return;
+      frame = window.requestAnimationFrame(render);
     };
 
-    create();
-    frame = window.requestAnimationFrame(render);
-    const observer = new ResizeObserver(create);
+    const create = async () => {
+      if (disposed || !visible || loading) return;
+      const nextWidth = Math.max(1, Math.round(host.clientWidth));
+      if (globe && Math.abs(nextWidth - width) < 32) return;
+      loading = true;
+      stop();
+      globe?.destroy();
+      globe = undefined;
+      width = nextWidth;
+      try {
+        const { default: createGlobe } = await import("cobe");
+        if (disposed || !visible) return;
+        const pixelRatio = lowPowerDevice ? 0.8 : 1;
+        globe = createGlobe(canvas, {
+          devicePixelRatio: pixelRatio,
+          width,
+          height: width,
+          phi,
+          theta: 0.28,
+          mapSamples: lowPowerDevice ? 4500 : 7000,
+          mapBrightness: 4.6,
+          diffuse: 0.55,
+          dark: 1,
+          baseColor: [0.32, 0.34, 0.38],
+          glowColor: [0.09, 0.11, 0.15],
+          markerColor: [0, 0.6, 1],
+          opacity: 0.9,
+        });
+        if (reducedMotion || lowPowerDevice) globe.update({ phi });
+        else start();
+      } finally {
+        loading = false;
+      }
+    };
+
+    const intersection = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) void create();
+      else stop();
+    }, { rootMargin: "100px" });
+    intersection.observe(host);
+    const observer = new ResizeObserver(() => { if (visible) void create(); });
     observer.observe(host);
+    const visibilityChange = () => {
+      pageVisible = !document.hidden;
+      if (pageVisible) start(); else stop();
+    };
+    document.addEventListener("visibilitychange", visibilityChange);
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updateMotion = () => { reducedMotion = motionPreference.matches; };
+    const updateMotion = () => {
+      reducedMotion = motionPreference.matches;
+      if (motionPreference.matches || lowPowerDevice) { stop(); globe?.update({ phi }); }
+      else start();
+    };
     motionPreference.addEventListener("change", updateMotion);
 
     return () => {
-      window.cancelAnimationFrame(frame);
+      disposed = true;
+      stop();
+      intersection.disconnect();
       observer.disconnect();
+      document.removeEventListener("visibilitychange", visibilityChange);
       motionPreference.removeEventListener("change", updateMotion);
       globe?.destroy();
     };
@@ -90,11 +143,21 @@ function QuoteMarks() {
 export default function TestimonialsSection() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
   const touchStart = useRef<number | null>(null);
   const current = reviews[active];
 
   useEffect(() => {
-    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { rootMargin: "100px" });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!visible || paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timeout = window.setTimeout(() => setActive((index) => (index + 1) % reviews.length), 7000);
     return () => window.clearTimeout(timeout);
   }, [active, paused]);
@@ -102,7 +165,7 @@ export default function TestimonialsSection() {
   const move = (direction: number) => setActive((index) => (index + direction + reviews.length) % reviews.length);
 
   return (
-    <section className="testimonials-section" id="testimonials" aria-labelledby="testimonials-heading">
+    <section ref={sectionRef} className="testimonials-section" id="testimonials" aria-labelledby="testimonials-heading">
       <div className="testimonial-globe-layer"><GlobeBackdrop /></div>
       <div className="testimonial-globe-veil" aria-hidden="true" />
       <div className="testimonials-inner">

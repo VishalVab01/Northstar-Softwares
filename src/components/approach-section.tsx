@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useEffect, useRef, type ReactNode } from "react";
 
 const discoveryImages = ["agency.jpg", "lumora.jpg", "watches.jpg", "greenearth.jpg", "guardianvets.jpg"];
 const cmsEntries = [
@@ -21,8 +23,20 @@ function CardCopy({ title, children, light = false }: { title: string; children:
 }
 
 export default function ApproachSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      section.classList.toggle("is-visible", entry.isIntersecting);
+    }, { rootMargin: "100px" });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="approach-section" id="approach" aria-labelledby="approach-title">
+    <section ref={sectionRef} className="approach-section" id="approach" aria-labelledby="approach-title">
       <div className="approach-inner">
         <h2 id="approach-title">Our Approach</h2>
         <div className="approach-rows">
@@ -33,7 +47,7 @@ export default function ApproachSection() {
                 {[0, 1].map((copy) => (
                   <div className="discovery-gallery-run" key={copy}>
                     {discoveryImages.map((image) => (
-                      <div className="discovery-shot" key={`${copy}-${image}`}><span className="browser-dots"><i /><i /><i /></span><img src={`/approach/${image}`} alt="" /></div>
+                      <div className="discovery-shot" key={`${copy}-${image}`}><span className="browser-dots"><i /><i /><i /></span><img src={`/approach/${image}`} alt="" loading="lazy" decoding="async" /></div>
                     ))}
                   </div>
                 ))}
@@ -43,8 +57,8 @@ export default function ApproachSection() {
             <article className="approach-card approach-mobile">
               <CardCopy title="Mobile-First Design" light>Every layout is designed for <strong>seamless mobile-first experiences,</strong> ensuring performance across all devices.</CardCopy>
               <div className="phone-pair" aria-hidden="true">
-                <img src="/approach/phone-a.webp" alt="" />
-                <img src="/approach/phone-b.webp" alt="" />
+                <img src="/approach/phone-a.webp" alt="" loading="lazy" decoding="async" />
+                <img src="/approach/phone-b.webp" alt="" loading="lazy" decoding="async" />
               </div>
             </article>
           </div>
@@ -53,8 +67,8 @@ export default function ApproachSection() {
             <article className="approach-card approach-conversion">
               <CardCopy title="Conversion-Driven">Websites built with strategy, designed to engage audiences, and crafted to turn <strong>visitors into customers.</strong></CardCopy>
               <div className="approach-laptop" aria-hidden="true">
-                <div className="laptop-screen"><img src="/approach/dashboard.webp" alt="" /><img className="laptop-rail" src="/approach/rail.webp" alt="" /><img className="laptop-lid" src="/approach/laptop-lid.webp" alt="" /></div>
-                <img className="laptop-base" src="/approach/laptop-base.webp" alt="" />
+                <div className="laptop-screen"><img src="/approach/dashboard.webp" alt="" loading="lazy" decoding="async" /><img className="laptop-rail" src="/approach/rail.webp" alt="" loading="lazy" decoding="async" /><img className="laptop-lid" src="/approach/laptop-lid.webp" alt="" loading="lazy" decoding="async" /></div>
+                <img className="laptop-base" src="/approach/laptop-base.webp" alt="" loading="lazy" decoding="async" />
               </div>
             </article>
 
@@ -63,9 +77,9 @@ export default function ApproachSection() {
               <div className="browser-showcase" aria-hidden="true">
                 <div className="browser-showcase-bar"><span>▶</span><b>Desktop</b></div>
                 <div className="browser-showcase-images">
-                  {["site-a.webp", "site-b.webp", "site-c.webp", "site-d.webp"].map((image) => <img src={`/approach/${image}`} alt="" key={image} />)}
+                  {["site-a.webp", "site-b.webp", "site-c.webp", "site-d.webp"].map((image) => <img src={`/approach/${image}`} alt="" key={image} loading="lazy" decoding="async" />)}
                 </div>
-                <img className="browser-panel" src="/approach/panel.webp" alt="" />
+                <img className="browser-panel" src="/approach/panel.webp" alt="" loading="lazy" decoding="async" />
               </div>
             </article>
           </div>
@@ -77,7 +91,7 @@ export default function ApproachSection() {
                 <div className="cms-table-head"><span>Title</span><span>Date</span><span>Image</span></div>
                 {cmsEntries.map(([title, date, image]) => (
                   <div className="cms-table-row" key={title}>
-                    <span className="cms-title"><i aria-hidden="true">▤</i>{title}</span><span className="cms-date">{date}</span><img src={`/approach/${image}`} alt="" />
+                    <span className="cms-title"><i aria-hidden="true">▤</i>{title}</span><span className="cms-date">{date}</span><img src={`/approach/${image}`} alt="" loading="lazy" decoding="async" />
                   </div>
                 ))}
               </div>
@@ -86,10 +100,10 @@ export default function ApproachSection() {
             <article className="approach-card approach-future">
               <CardCopy title="Future-Ready">Websites designed to be <strong>scalable and future-ready,</strong> adapting as your business grows.</CardCopy>
               <div className="watch-face" aria-hidden="true">
-                <img className="watch-dial" src="/approach/dial.webp" alt="" />
-                <img className="watch-hour" src="/approach/hand-hour.webp" alt="" />
-                <img className="watch-minute" src="/approach/hand-minute.webp" alt="" />
-                <img className="watch-second" src="/approach/hand-second.webp" alt="" />
+                <img className="watch-dial" src="/approach/dial.webp" alt="" loading="lazy" decoding="async" />
+                <img className="watch-hour" src="/approach/hand-hour.webp" alt="" loading="lazy" decoding="async" />
+                <img className="watch-minute" src="/approach/hand-minute.webp" alt="" loading="lazy" decoding="async" />
+                <img className="watch-second" src="/approach/hand-second.webp" alt="" loading="lazy" decoding="async" />
               </div>
             </article>
           </div>

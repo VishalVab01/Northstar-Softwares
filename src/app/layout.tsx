@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Bodoni_Moda, Manrope } from "next/font/google";
+import "lenis/dist/lenis.css";
 import "./globals.css";
+import SmoothScroll from "@/components/smooth-scroll";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -29,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${manrope.variable} ${bodoniModa.variable}`}>
+        <SmoothScroll />
         {children}
       </body>
     </html>

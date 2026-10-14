@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
 const platforms = [
   { name: "Webflow", image: "/platforms/webflow.png", featured: true },
   { name: "WordPress", image: "/platforms/wordpress.png" },
@@ -10,16 +14,33 @@ const platforms = [
 ];
 
 export default function PlatformSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const video = section?.querySelector("video");
+    if (!section || !video) return;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const lowPowerDevice = (navigator.hardwareConcurrency || 4) <= 4;
+    const playVideo = !motionPreference.matches && !lowPowerDevice;
+    const observer = new IntersectionObserver(([entry]) => {
+      section.classList.toggle("is-visible", entry.isIntersecting);
+      if (entry.isIntersecting && playVideo) void video.play().catch(() => {});
+      else video.pause();
+    }, { rootMargin: "100px" });
+    observer.observe(section);
+    return () => { observer.disconnect(); video.pause(); };
+  }, []);
+
   return (
-    <section className="platform-section" id="platform-flexibility" aria-labelledby="platform-title">
+    <section ref={sectionRef} className="platform-section" id="platform-flexibility" aria-labelledby="platform-title">
       <div className="platform-copy">
         <video
           className="platform-starfield"
-          autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           poster="/platform-starfield.jpg"
           aria-hidden="true"
         >

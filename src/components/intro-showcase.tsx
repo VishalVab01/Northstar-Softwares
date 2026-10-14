@@ -37,7 +37,7 @@ export default function IntroShowcase() {
         const row = rows[index];
         if (!row) return;
 
-        const distance = () => Math.max(0, Math.min(track.scrollWidth - row.clientWidth, 1500));
+    const distance = () => Math.max(0, Math.min((track.scrollWidth - row.clientWidth) * 0.6, 900));
         const fromX = index === 1 ? () => -distance() : 0;
         const toX = index === 1 ? 0 : () => -distance();
 
@@ -77,6 +77,8 @@ export default function IntroShowcase() {
                     width={720}
                     height={540}
                     sizes="(max-width: 700px) 74vw, 360px"
+                    loading="lazy"
+                    decoding="async"
                     key={`${image}-${index}`}
                   />
                 ))}

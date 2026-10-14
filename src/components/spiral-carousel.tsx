@@ -38,7 +38,16 @@ export default function SpiralCarousel() {
     let tiltX = 0;
     let tiltY = 0;
     let frame = 0;
+    let scrollFrame = 0;
     let active = false;
+    let sectionStart = 0;
+    let scrollableDistance = 1;
+    let lastProgress = -1;
+
+    const measureSection = () => {
+      sectionStart = section.getBoundingClientRect().top + window.scrollY;
+      scrollableDistance = Math.max(1, section.offsetHeight - window.innerHeight);
+    };
 
     const render = () => {
       frame = 0;
@@ -67,10 +76,11 @@ export default function SpiralCarousel() {
       }
     };
 
-    const syncScroll = () => {
-      const bounds = section.getBoundingClientRect();
-      const scrollableDistance = Math.max(1, section.offsetHeight - window.innerHeight);
-      const progress = Math.min(1, Math.max(0, -bounds.top / scrollableDistance));
+    const updateScroll = () => {
+      scrollFrame = 0;
+      const progress = Math.min(1, Math.max(0, (window.scrollY - sectionStart) / scrollableDistance));
+      if (Math.abs(progress - lastProgress) < 0.0001) return;
+      lastProgress = progress;
       const turn = reduceMotion ? 180 : 540;
       targetRotation = -progress * turn;
 
@@ -78,6 +88,10 @@ export default function SpiralCarousel() {
       const nextIndex = Math.round((progress * turn) / step) % projects.length;
       setActiveIndex((current) => (current === nextIndex ? current : nextIndex));
       scheduleRender();
+    };
+
+    const syncScroll = () => {
+      if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateScroll);
     };
 
     const onPointerMove = (event: PointerEvent) => {
@@ -96,18 +110,25 @@ export default function SpiralCarousel() {
       scheduleRender();
     };
 
+    const onResize = () => {
+      measureSection();
+      syncScroll();
+    };
+
     window.addEventListener("scroll", syncScroll, { passive: true });
-    window.addEventListener("resize", syncScroll);
+    window.addEventListener("resize", onResize, { passive: true });
     stage.addEventListener("pointermove", onPointerMove);
     stage.addEventListener("pointerleave", resetPointer);
-    syncScroll();
+    measureSection();
+    updateScroll();
 
     return () => {
       window.removeEventListener("scroll", syncScroll);
-      window.removeEventListener("resize", syncScroll);
+      window.removeEventListener("resize", onResize);
       stage.removeEventListener("pointermove", onPointerMove);
       stage.removeEventListener("pointerleave", resetPointer);
       if (frame) window.cancelAnimationFrame(frame);
+      if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
     };
   }, []);
 
@@ -139,7 +160,8 @@ export default function SpiralCarousel() {
                   alt=""
                   fill
                   sizes="(max-width: 700px) 38vw, 220px"
-                  priority={index < 4}
+                  loading="lazy"
+                  decoding="async"
                 />
               </article>
             ))}
@@ -153,7 +175,8 @@ export default function SpiralCarousel() {
                 alt={projects[activeIndex].name}
                 fill
                 sizes="(max-width: 700px) 56vw, 360px"
-                priority
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <p>{projects[activeIndex].name}</p>
