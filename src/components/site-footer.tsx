@@ -1,3 +1,6 @@
+import FooterHands from "@/components/footer-hands";
+import FooterWordmark from "@/components/footer-wordmark";
+
 const groups = [
   { title: "Company", links: [["About", "#approach"], ["Work", "#works"], ["Privacy Policy", "#contact"], ["Terms and conditions", "#contact"]] },
   { title: "Services", links: [["Crafted Websites", "#services"], ["Website Redesign", "#services"], ["eCommerce Design", "#services"], ["CMS & Dynamic Sites", "#services"]] },
@@ -16,17 +19,6 @@ function Arrow() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M
 export default function SiteFooter() {
   return (
     <footer className="site-footer" id="contact">
-      <div className="footer-cta">
-        <h2>Create Bold.<br />Deliver Better.</h2>
-        <div className="footer-cta-actions"><a className="footer-secondary" href="#works">See our work</a><a className="footer-primary" href="mailto:hello@northstarsoftware.example">Get in touch</a></div>
-      </div>
-      <svg className="footer-watermark" viewBox="0 0 32 32" aria-hidden="true">
-        <defs><linearGradient id="northstar-footer-face" x1="5" y1="4" x2="27" y2="28" gradientUnits="userSpaceOnUse"><stop stopColor="#fff"/><stop offset=".48" stopColor="#d8d8d8"/><stop offset=".72" stopColor="#fff"/><stop offset="1" stopColor="#bcbcbc"/></linearGradient></defs>
-        <path d="M16 1.8 19.4 12.6 30.2 16l-10.8 3.4L16 30.2l-3.4-10.8L1.8 16l10.8-3.4L16 1.8Z" transform="translate(0 1.3)" fill="#555"/>
-        <path d="M16 1.8 19.4 12.6 30.2 16l-10.8 3.4L16 30.2l-3.4-10.8L1.8 16l10.8-3.4L16 1.8Z" transform="translate(0 .55)" fill="#c7c7c7"/>
-        <path d="M16 1.8 19.4 12.6 30.2 16l-10.8 3.4L16 30.2l-3.4-10.8L1.8 16l10.8-3.4L16 1.8Z" fill="url(#northstar-footer-face)" stroke="#fff" strokeWidth=".45"/>
-        <circle cx="16" cy="16" r="2.6" fill="#000"/>
-      </svg>
       <div className="footer-content">
         <ul className="footer-socials">
           {socialLinks.map((item) => <li key={item.name}><a href="#home" aria-label={item.name}>{item.icon}<span>{item.name}</span><span className="footer-social-arrow"><Arrow /></span></a></li>)}
@@ -35,8 +27,10 @@ export default function SiteFooter() {
           {groups.map((group) => <div className="footer-link-group" key={group.title}><h3>{group.title}</h3><ul>{group.links.map(([label, href]) => <li key={label}><a href={href}>{label}</a></li>)}</ul></div>)}
           <div className="footer-link-group"><h3>Contact</h3><ul><li><a href="mailto:hello@northstarsoftware.example">Email: hello@northstarsoftware.example</a></li><li><span>Phone: Available on request</span></li><li><span>Based in India</span></li><li><span>Serving the US, UK &amp; worldwide</span></li></ul></div>
         </div>
-        <p className="footer-copyright">© 2026 Northstar Software. All rights reserved.</p>
       </div>
+      <FooterHands />
+      <FooterWordmark />
+      <p className="footer-copyright">© 2026 Northstar Software. All rights reserved.</p>
     </footer>
   );
 }

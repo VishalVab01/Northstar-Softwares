@@ -2239,35 +2239,63 @@ a:focus-visible {
   isolation: isolate;
 }
 
-.footer-cta { position: relative; z-index: 2; text-align: center; }
-.footer-cta h2 { margin: 0; color: #f7f7f8; font-size: clamp(40px, 5.2vw, 72px); font-weight: 520; letter-spacing: -0.06em; line-height: 1; }
-.footer-cta-actions { display: flex; margin-top: 36px; justify-content: center; gap: 12px; }
-.footer-cta-actions a { display: inline-flex; min-height: 38px; padding: 0 16px; align-items: center; justify-content: center; border-radius: 999px; font-size: 14px; font-weight: 520; transition: background 180ms ease, transform 180ms ease; }
-.footer-cta-actions a:hover { transform: translateY(-2px); }
-.footer-secondary { background: rgb(255 255 255 / 14%); color: #f7f7f8; }
-.footer-secondary:hover { background: rgb(255 255 255 / 22%); }
-.footer-primary { background: #fff; color: #111; }
-.footer-primary:hover { background: #e7e7e7; }
+.footer-hands-stage {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 1425px);
+  height: clamp(88px, 23vw, 330px);
+  margin: 12px auto -8px;
+  overflow: visible;
+  isolation: isolate;
+  pointer-events: auto;
+}
 
-.footer-watermark {
+.footer-hand {
   position: absolute;
-  z-index: 0;
-  top: 330px;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  will-change: transform, opacity;
+}
+
+.footer-hand-left { left: -150px; }
+.footer-hand-right { right: -150px; }
+
+.footer-hand-art {
+  position: absolute;
+  inset: 0;
+  transform-origin: center;
+  transition: transform 220ms cubic-bezier(.22,.61,.36,1);
+  will-change: transform;
+}
+
+.footer-hand canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: .92;
+}
+
+.footer-hands-glow {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
   left: 50%;
-  width: min(60vw, 700px);
-  min-width: 370px;
-  transform: translateX(-50%);
-  color: #fff;
-  opacity: 0.92;
-  filter: none;
+  width: 24%;
+  height: 68%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(153 178 213 / 10%), transparent 72%);
   pointer-events: none;
 }
 
 .footer-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: min(100%, 1425px);
-  margin: 270px auto 0;
+  margin: 28px auto 0;
   padding-inline: 32px;
   background: linear-gradient(180deg, rgb(0 0 0 / 34%), rgb(0 0 0 / 72%));
   -webkit-backdrop-filter: blur(20px);
@@ -2311,12 +2339,38 @@ a:focus-visible {
 .footer-link-group a:hover { color: #fff; }
 
 .footer-copyright {
-  margin: 0;
+  width: min(calc(100% - 64px), 1360px);
+  margin: 28px auto 0;
   padding: 22px 0;
-  border-top: 1px solid rgb(255 255 255 / 14%);
   color: rgb(255 255 255 / 45%);
   font-size: 12px;
   text-align: center;
+}
+
+.footer-wordmark {
+  display: flex;
+  width: min(100%, 1425px);
+  margin: clamp(38px, 7vw, 96px) auto 0;
+  padding: 0 32px;
+  align-items: flex-end;
+  justify-content: space-between;
+  overflow: hidden;
+  color: #f7f7f8;
+  font-size: clamp(48px, 14.2vw, 208px);
+  font-weight: 540;
+  letter-spacing: -0.075em;
+  line-height: .88;
+}
+
+.footer-wordmark-slot {
+  display: block;
+  height: .92em;
+  overflow: hidden;
+}
+
+.footer-wordmark-letter {
+  display: block;
+  will-change: transform, opacity;
 }
 
 @media (max-width: 760px) {
@@ -2325,8 +2379,10 @@ a:focus-visible {
   .faq-item button > span,
   .faq-answer p { font-size: 14px; }
   .site-footer { padding-top: 90px; }
-  .footer-content { margin-top: 185px; padding-inline: 20px; }
-  .footer-watermark { top: 285px; width: 80vw; min-width: 300px; }
+  .footer-hands-stage { margin-block: 10px 0; }
+  .footer-content { margin-top: 28px; padding-inline: 20px; }
+  .footer-wordmark { padding-inline: 20px; font-size: clamp(44px, 14.2vw, 108px); }
+  .footer-copyright { width: calc(100% - 40px); }
   .footer-socials { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .footer-socials li:nth-child(odd) { border-left: 0; }
   .footer-socials li:nth-child(n+3) { border-top: 1px solid rgb(255 255 255 / 14%); }
@@ -2347,7 +2403,9 @@ a:focus-visible {
   .faq-item button { padding-inline: 12px; gap: 12px; }
   .faq-answer p { padding-right: 16px; padding-left: 12px; }
   .site-footer { padding-top: 76px; }
-  .footer-content { margin-top: 150px; padding-inline: 14px; }
+  .footer-content { margin-top: 24px; padding-inline: 14px; }
+  .footer-wordmark { padding-inline: 14px; font-size: clamp(38px, 13.6vw, 58px); letter-spacing: -.08em; }
+  .footer-copyright { width: calc(100% - 28px); }
   .footer-socials a { padding-inline: 11px; gap: 7px; }
   .footer-social-arrow { display: none; }
   .footer-link-group { padding-inline: 12px; }
